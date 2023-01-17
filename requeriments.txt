@@ -1,0 +1,8 @@
+httpx
+brotlipy
+python-dotenv
+colorama
+motor
+pymongo
+pyyaml
+bs4
