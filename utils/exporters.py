@@ -35,13 +35,23 @@ async def manage_exporters():
         },
         {
             "exporter": config.export_urls,
-            "query": {},
+            "query": {"type": {"$nin": ["binary", "media", "js"]}},
             "file_path": "urls.txt"
         },
         {
             "exporter": config.export_downloadable,
-            "query": {"is_downloadable": True},
+            "query": {"type": "downloadable"},
             "file_path": "downloadable.txt"
+        },
+        {
+            "exporter": config.export_js,
+            "query": {"type": "js"},
+            "file_path": "js.txt"
+        },
+        {
+            "exporter": config.export_media,
+            "query": {"type": "media"},
+            "file_path": "media.txt"
         }
     ]
     

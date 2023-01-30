@@ -61,7 +61,7 @@ async def do_request(url, session, semaphore):
         except RateLimitExceeded:
             message = "rate limit exceeded"
             break
-        except (httpx.HTTPError, ResolutionError, ssl.SSLError):
+        except (httpx.HTTPError, ResolutionError, ssl.SSLError, ValueError):
             message = "error"
             break
     else:

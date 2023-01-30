@@ -29,6 +29,11 @@ def set_schema(url):
     return url
 
 
+def remove_params(url):
+    parsed_url = urlparse(url)
+    return f"{parsed_url.scheme}://{split_host(url)}{parsed_url.path}"
+
+
 def create_or_clear_temp(base_dir):
     path =  f"{base_dir}/temp"
     

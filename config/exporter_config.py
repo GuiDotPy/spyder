@@ -51,4 +51,16 @@ def get_export_parser():
         action=argparse.BooleanOptionalAction,
         help="export downloadable urls"
     )
+    parser.add_argument(
+        "-ejs",
+        "--export-js",
+        action=argparse.BooleanOptionalAction,
+        help="export javascript"
+    )
+    parser.add_argument(
+        "-em",
+        "--export-media",
+        action=argparse.BooleanOptionalAction,
+        help="export media"
+    )
     return parser

@@ -3,7 +3,7 @@ import re
 
 from utils.requester import check_urls, is_404, is_url_in_scope
 from config import config
-from utils.utils import get_urls_from_responses, get_chuncked_list
+from utils.utils import get_urls_from_responses, get_chuncked_list, remove_params
 
 
 async def get_urls_not_in_collection(collection, urls):
@@ -27,10 +27,10 @@ async def get_urls_not_in_collection(collection, urls):
 
 async def save_visited_urls(urls):
     collection = config.mongo_database.visited_urls
- 
+
     for url in urls:
-        if not await collection.find_one({"url": url}):
-            await collection.insert_one({"url": url})
+        if not await collection.find_one({"url": remove_params(url)}):
+            await collection.insert_one({"url": remove_params(url)})
 
 
 def get_links(url, html):
@@ -92,6 +92,24 @@ async def do_crawl(urls):
     return urls_found, valid_responses
 
 
+def get_response_type(response):
+    types = []
+
+    url = remove_params(str(response.url))
+    content_type = response.headers.get("content-type", "")
+
+    types = {
+        "media": response.is_media,
+        "binary": response.is_binary,
+        "downloadable": response.is_downloadable,
+        "js": url.endswith(".js") or "javascript" in content_type
+    }
+
+    for key, value in types.items():
+        if value:
+            return key
+
+
 async def save_valid_responses(valid_responses):
     collection = config.mongo_database.discovered_urls
     saved_urls = set()
@@ -103,7 +121,7 @@ async def save_valid_responses(valid_responses):
     )
     
     for response in valid_responses:
-        url = str(response.url)
+        url = remove_params(str(response.url))
 
         if url not in saved_urls and url in urls_not_in_collection:
             response_data.append(
@@ -111,7 +129,7 @@ async def save_valid_responses(valid_responses):
                     "url": url,
                     "status": response.status_code,
                     "content_type": response.headers.get("content-type", ""),
-                    "is_downloadable": response.is_downloadable
+                    "type": get_response_type(response)
                 }
             )
   
@@ -128,7 +146,7 @@ async def crawl(unvisited_urls):
     for _ in range(config.max_recrawl + 1):
         next_urls = set()
 
-        for unvisited_urls_chunk in get_chuncked_list(unvisited_urls, 10_000):
+        for unvisited_urls_chunk in get_chuncked_list(unvisited_urls, 5000):
             urls_found, valid_responses = await do_crawl(unvisited_urls_chunk)
  
             valid_responses.extend(
@@ -147,4 +165,4 @@ async def crawl(unvisited_urls):
 
             next_urls.update(new_urls)
             
-        unvisited_urls = new_urls
+        unvisited_urls = next_urls
