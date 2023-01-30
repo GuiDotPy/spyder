@@ -57,6 +57,8 @@ EXPORTER:
   -er, --export-regex          export urls that match the specified regex
   -eurls, --export-urls        export all urls
   -ed, --export-downloadable   export downloadable urls
+  -ejs, --export-js            export javascript
+  -em, --export-media          export media
 ```
 
 ## Tips & Recommendations
